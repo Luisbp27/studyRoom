@@ -1,6 +1,48 @@
-public class Student {
+public class Student implements Runnable {
+
+    private String name;
     
-    public Student() {
-        
+    public Student(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void run() {
+
+        try {
+
+            // Critical Region
+            StudyRoom.students.acquire();
+            StudyRoom.studentsCounter++;
+            System.out.println(this.name + ": goes inside the study room. Current number of students: " + StudyRoom.studentsCounter);
+            StudyRoom.students.release();
+
+            // Check if the students is studying or party
+            if (StudyRoom.studentsCounter < StudyRoom.party) {
+                System.out.println(this.name + " is studying");
+                Thread.sleep((long) (Math.random() + 1000));
+
+            } else {
+                System.out.println(this.name + "PARTY!!!!");
+                Thread.sleep((long) (Math.random() + 1000));
+
+                // When there is a party and the director is waiting
+                if (StudyRoom.roomState == Director.States.WAITING) {
+                    System.out.println("    The director is in the study room: THE PARTY IS OVER");
+                    StudyRoom.director.release();
+                } else {
+                    StudyRoom.students.release();
+                }
+            }
+
+            // If the study room is empty, the director go in
+            if (StudyRoom.studentsCounter == 0) {
+                System.out.println("    The director checks there is nobody in the student room");
+                StudyRoom.director.release();
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }
