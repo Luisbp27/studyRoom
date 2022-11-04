@@ -1,7 +1,7 @@
 public class Student implements Runnable {
 
     private String name;
-    
+
     public Student(String name) {
         this.name = name;
     }
@@ -12,10 +12,11 @@ public class Student implements Runnable {
         try {
 
             // Critical Region
-            StudyRoom.students.acquire();
+            StudyRoom.student.acquire();
             StudyRoom.studentsCounter++;
-            System.out.println(this.name + ": goes inside the study room. Current number of students: " + StudyRoom.studentsCounter);
-            StudyRoom.students.release();
+            System.out.println(this.name + ": goes inside the study room. Current number of students: "
+                + StudyRoom.studentsCounter);
+            StudyRoom.student.release();
 
             // Check if the students is studying or party
             if (StudyRoom.studentsCounter < StudyRoom.party) {
@@ -23,7 +24,7 @@ public class Student implements Runnable {
                 Thread.sleep((long) (Math.random() + 1000));
 
             } else {
-                System.out.println(this.name + "PARTY!!!!");
+                System.out.println(this.name + " PARTY!!!!");
                 Thread.sleep((long) (Math.random() + 1000));
 
                 // When there is a party and the director is waiting
@@ -31,7 +32,7 @@ public class Student implements Runnable {
                     System.out.println("    The director is in the study room: THE PARTY IS OVER");
                     StudyRoom.director.release();
                 } else {
-                    StudyRoom.students.release();
+                    StudyRoom.student.release();
                 }
             }
 
@@ -40,9 +41,12 @@ public class Student implements Runnable {
                 System.out.println("    The director checks there is nobody in the student room");
                 StudyRoom.director.release();
             }
-            
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    public String getName() {
+        return this.name;
     }
 }

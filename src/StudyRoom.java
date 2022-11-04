@@ -9,40 +9,41 @@ public class StudyRoom {
     static Director.States roomState = Director.States.OUT;
 
     static Semaphore director = new Semaphore(0);
-    static Semaphore students = new Semaphore(1);
+    static Semaphore student = new Semaphore(1);
 
-    static String names[] = { 
-        "Moises", 
-        "Carlos", 
-        "Julio", 
-        "Gregoria", 
-        "Juana", 
-        "Luis", 
-        "Alejandro", 
-        "Omar", 
-        "Jorge", 
-        "Fabian", 
-        "Anastasia", 
-        "Claudia",
-        "Isidoro",
-        "Manuel",
-        "Paula" };
+    static Thread directorThread = new Thread(new Director());
+    static Thread studentsThread[] = new Thread[maxStudents];
+
+    static String names[] = {
+            "Moises",
+            "Carlos",
+            "Julio",
+            "Gregoria",
+            "Juana",
+            "Luis",
+            "Alejandro",
+            "Omar",
+            "Jorge",
+            "Fabian",
+            "Anastasia",
+            "Claudia",
+            "Isidoro",
+            "Manuel",
+            "Paula" };
 
     public static void main(String args[]) throws InterruptedException {
         System.out.println("Total number of students: " + party);
 
-        Thread director = new Thread(new Director());
-        Thread students[] = new Thread[maxStudents];
-
-        director.start();
-        for (int i = 0; i < students.length; i++) {
-            students[i] = new Thread(new Student(names[i]));
-            students[i].start();
+        directorThread.start();
+        for (int i = 0; i < studentsThread.length; i++) {
+            studentsThread[i] = new Thread(new Student(names[i]));
+            studentsThread[i].start();
         }
 
-        director.join();
-        for (int i = 0; i < students.length; i++) {
-            students[i].join();
+        directorThread.join();
+        for (int i = 0; i < studentsThread.length; i++) {
+            studentsThread[i].join();
         }
     }
+
 }
