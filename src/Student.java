@@ -8,50 +8,42 @@ public class Student implements Runnable {
 
     @Override
     public void run() {
-
         try {
-
-            // Critical Region
-            StudyRoom.student.acquire();
-            StudyRoom.studentsCounter++;
-            System.out.println(this.name + ": goes inside the study room. Current number of students: "
-                + StudyRoom.studentsCounter);
-
-            // Check if the students is studying or party
-            if (StudyRoom.studentsCounter < StudyRoom.party) {
-                System.out.println(this.name + " is studying");
-                Thread.sleep((long) (Math.random() + 1000));
-
-            } else {
-                System.out.println(this.name + " PARTY!!!!");
-                Thread.sleep((long) (Math.random() + 1000));
-
-                // When there is a party and the director is waiting
-                if (StudyRoom.roomState == Director.States.WAITING) {
-                    System.out.println("    The director is in the study room: THE PARTY IS OVER");
-                    StudyRoom.roomState = Director.States.IN;
+            // The director is IN the study room
+            if (Director.directorState == Director.State.IN || StudyRoom.door.tryAcquire()) {
+                // Waiting
+                while (Director.directorState == Director.State.IN || StudyRoom.door.tryAcquire()) {
                     StudyRoom.student.acquire();
-                    StudyRoom.director.release();
-                } else {
-                    StudyRoom.student.release();
                 }
-            }
-            StudyRoom.student.release();
 
-            // If the study room is empty, the director go in
-            StudyRoom.door.acquire();
-            if (StudyRoom.studentsCounter == 0) {
-                System.out.println("    The director checks there is nobody in the student room");
-                StudyRoom.director.release();
+            // The director is OUT, WAITING or the door is open
+            } else {
+                // Critical Region to go inside the room
+                StudyRoom.student.acquire();
+                StudyRoom.studentsCounter++;
+                System.out.println(this.name + ": goes inside the study room. Current number of students: "
+                        + StudyRoom.studentsCounter);
+                StudyRoom.student.release();
+
+                // If students are studying or making a party
+                if (StudyRoom.studentsCounter < StudyRoom.party) {
+                    System.out.println(this.name + " is studying");
+                    Thread.sleep((long) (Math.random() + 1000));
+                } else {
+                    System.out.println(this.name + " PARTY!!!");
+                    Thread.sleep((long) (Math.random() + 1000));
+                }
+
+                // Critical region to go out the room
+                StudyRoom.student.acquire();
+                StudyRoom.studentsCounter--;
+                System.out.println(this.name + ": goes outside the study room. Current number of students: "
+                        + StudyRoom.studentsCounter);
+                StudyRoom.student.release();
             }
-            StudyRoom.door.release();
 
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
         }
-    }
-
-    public String getName() {
-        return this.name;
     }
 }
