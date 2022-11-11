@@ -15,30 +15,39 @@ public class Director implements Runnable {
 
             for (int i = 1; i <= 3; i++) {
                 System.out.println("    The Director starts the round " + i + "/3");
-
+                Thread.sleep((long) (Math.random() + 1000));
+                
                 // If nobody is in the study room
+                // StudyRoom.roomState = States.WAITING;
+                StudyRoom.door.acquire();
                 if (StudyRoom.studentsCounter == 0) {
                     StudyRoom.student.acquire();
                     System.out.println("    The director see that's nobody is in the study room");
-                    StudyRoom.roomState = Director.States.IN;
-                    
-                    StudyRoom.director.release();
                     StudyRoom.student.release();
+
+                    StudyRoom.roomState = States.OUT;
+                    Thread.sleep((long) (Math.random() + 1000));
                 }
+                StudyRoom.door.release();
 
                 // If somebody is in the room but they are studying
-                if (StudyRoom.studentsCounter <= StudyRoom.party && StudyRoom.studentsCounter > 0) {
+                StudyRoom.door.acquire();
+                if (StudyRoom.studentsCounter < StudyRoom.party && StudyRoom.studentsCounter > 0) {
+                    StudyRoom.roomState = States.WAITING;
                     StudyRoom.director.acquire();
                     System.out.println("    The director is waiting. They don't disturb the students");
+                    StudyRoom.door.release();
                     Thread.sleep((long) (Math.random() + 1000));
-                    StudyRoom.roomState = Director.States.WAITING;
                 }
+                
 
                 // If there is a party in the room
+                StudyRoom.door.acquire();
                 if (StudyRoom.studentsCounter >= StudyRoom.party) {
                     // Block then entry of students and change the director state
-                    StudyRoom.student.acquire();
                     StudyRoom.roomState = Director.States.IN;
+                    StudyRoom.director.acquire();
+                    StudyRoom.student.acquire();
 
                     // Go out all students of the study room
                     int counter = StudyRoom.studentsCounter;
@@ -52,7 +61,7 @@ public class Director implements Runnable {
                     // Release all threads
                     StudyRoom.director.release();
                     StudyRoom.roomState = Director.States.OUT;
-
+                    StudyRoom.door.release();
                     StudyRoom.student.release();
                 }
             }

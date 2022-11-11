@@ -10,6 +10,7 @@ public class StudyRoom {
 
     static Semaphore director = new Semaphore(0);
     static Semaphore student = new Semaphore(1);
+    static Semaphore door = new Semaphore(1);
 
     static Thread directorThread = new Thread(new Director());
     static Thread studentsThread[] = new Thread[maxStudents];

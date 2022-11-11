@@ -16,7 +16,6 @@ public class Student implements Runnable {
             StudyRoom.studentsCounter++;
             System.out.println(this.name + ": goes inside the study room. Current number of students: "
                 + StudyRoom.studentsCounter);
-            StudyRoom.student.release();
 
             // Check if the students is studying or party
             if (StudyRoom.studentsCounter < StudyRoom.party) {
@@ -30,17 +29,23 @@ public class Student implements Runnable {
                 // When there is a party and the director is waiting
                 if (StudyRoom.roomState == Director.States.WAITING) {
                     System.out.println("    The director is in the study room: THE PARTY IS OVER");
+                    StudyRoom.roomState = Director.States.IN;
+                    StudyRoom.student.acquire();
                     StudyRoom.director.release();
                 } else {
                     StudyRoom.student.release();
                 }
             }
+            StudyRoom.student.release();
 
             // If the study room is empty, the director go in
+            StudyRoom.door.acquire();
             if (StudyRoom.studentsCounter == 0) {
                 System.out.println("    The director checks there is nobody in the student room");
                 StudyRoom.director.release();
             }
+            StudyRoom.door.release();
+
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
