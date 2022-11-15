@@ -12,7 +12,7 @@ public class StudyRoom {
     static Semaphore director = new Semaphore(0);
     static Semaphore student = new Semaphore(1);
     // Blocks entrance of students when evaluate students counter on Director class
-    static Semaphore door = new Semaphore(0);
+    static Semaphore mutex = new Semaphore(0);
 
     static String names[] = {
             "Moises",
