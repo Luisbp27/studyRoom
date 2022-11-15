@@ -9,18 +9,17 @@ public class Student implements Runnable {
     @Override
     public void run() {
         try {
-            StudyRoom.mutex.acquire();
-            System.out.println("hola");
             // The director is OUT, WAITING
             if (Director.directorState != Director.State.IN) {
-                StudyRoom.mutex.release();
-                System.out.println("he entrado");
                 // Critical Region to go inside the room
-                StudyRoom.student.acquire();
+                StudyRoom.mutex.acquire();
                 StudyRoom.studentsCounter++;
                 System.out.println(this.name + ": goes inside the study room. Current number of students: "
                         + StudyRoom.studentsCounter);
-                StudyRoom.student.release();
+                        if(StudyRoom.studentsCounter>=StudyRoom.maxStudents){
+                            StudyRoom.director.release();
+                        }
+                StudyRoom.mutex.release();
 
                 StudyRoom.mutex.acquire();
                 // If students are studying or making a party
@@ -31,21 +30,26 @@ public class Student implements Runnable {
                 }
                 StudyRoom.mutex.release();
                 Thread.sleep((long) (Math.random() + 1000));
-            } 
+            }else{
+
+                StudyRoom.student.acquire();
+            }
                    
             // Critical region to go out the room
-            StudyRoom.student.acquire();
+            StudyRoom.mutex.acquire();
             StudyRoom.studentsCounter--;
             System.out.println(this.name + ": goes outside the study room. Current number of students: "
                     + StudyRoom.studentsCounter);
-            StudyRoom.student.release();
+            StudyRoom.mutex.release();
 
             StudyRoom.mutex.acquire();
             // If is the last student and the director is IN or WAITING
-            if (StudyRoom.studentsCounter == 0 && Director.directorState != Director.State.OUT) {
-                StudyRoom.mutex.release(); 
+            if (StudyRoom.studentsCounter == 0 && Director.directorState != Director.State.OUT) {               
                 System.out.println(this.name + " is the last student. Good bye director");
+                
             }
+            StudyRoom.mutex.release(); 
+
 
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
