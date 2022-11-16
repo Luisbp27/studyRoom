@@ -9,6 +9,7 @@ public class Student implements Runnable {
     @Override
     public void run() {
         try {
+            Thread.sleep((long) (Math.random() + 1000));
             // The director is OUT, WAITING
             if (Director.directorState != Director.State.IN) {
                 // Critical Region to go inside the room

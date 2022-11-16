@@ -34,11 +34,11 @@ public class StudyRoom {
     public static void main(String args[]) throws InterruptedException {
         System.out.println("Total number of students: " + party);
 
-        directorThread.start();
         for (int i = 0; i < studentsThread.length; i++) {
             studentsThread[i] = new Thread(new Student(names[i]));
             studentsThread[i].start();
         }
+        directorThread.start();
 
         directorThread.join();
         for (int i = 0; i < studentsThread.length; i++) {
