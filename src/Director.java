@@ -17,13 +17,14 @@ public class Director implements Runnable {
 
                 StudyRoom.mutex.acquire();
                 System.out.println("  The Director starts the round " + i + "/3");  
-
+                
                 // If there is nobody in the study room                
                 if (StudyRoom.studentsCounter == 0) {
                     
                     // System.out.println("    The director see that's nobody is in the study room");
                     // directorState = State.OUT;
                     StudyRoom.mutex.release();
+                    StudyRoom.director.release();
                     //StudyRoom.director.release();
                 
                 // If there is no party in the study room
@@ -50,15 +51,17 @@ public class Director implements Runnable {
                     
                     directorState = State.IN;
                     System.out.println("    The director is in the study room: THE PARTY IS OVER");
-                    StudyRoom.director.acquire();
-                    StudyRoom.student.release();
+                    StudyRoom.student.release();  
+                    StudyRoom.director.acquire();                
                     StudyRoom.mutex.release();
                 }
                 //StudyRoom.director.acquire();
                 //Thread.sleep((long) (Math.random() + 1000));
                 
                 // The director goes out and take a coffe
+                StudyRoom.director.acquire();//esperando a que no haya alumnos en el aula
                 StudyRoom.mutex.acquire();
+                //System.out.println("Semaforos-> director: " + StudyRoom.director.availablePermits());
                 System.out.println("    The director see that's nobody is in the study room");
                 directorState = State.OUT;
                 System.out.println("    The director finished the round " + i + "/3");

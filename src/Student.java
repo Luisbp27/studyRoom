@@ -32,7 +32,7 @@ public class Student implements Runnable {
                     //StudyRoom.mutex.release();
                 }
                 StudyRoom.student.release();
-                //Thread.sleep((long) ((Math.random()*100) + 1000));
+                Thread.sleep((long) ((Math.random()*100) + 1000));
             }
             StudyRoom.mutex.release();
             //sin este sleep los estudiantes solo entran de 1 en 1

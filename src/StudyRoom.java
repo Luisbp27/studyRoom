@@ -9,7 +9,7 @@ public class StudyRoom {
     static Thread directorThread = new Thread(new Director());
     static Thread studentsThread[] = new Thread[maxStudents];
 
-    static Semaphore director = new Semaphore(0);
+    static Semaphore director = new Semaphore(1);
     static Semaphore student = new Semaphore(1);
     // Blocks entrance of students when evaluate students counter on Director class
     static Semaphore mutex = new Semaphore(1);
