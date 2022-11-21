@@ -40,10 +40,12 @@ public class StudyRoom {
             studentsThread[i] = new Thread(new Student(names[i]));
             studentsThread[i].start();
         }
+        
         directorThread.join();
         for (int i = 0; i < studentsThread.length; i++) {
             studentsThread[i].join();
         }
+
         System.out.println("Semaforos-> director: " + director.availablePermits() + ", student: " + student.availablePermits() + ", mutex: " + mutex.availablePermits());
         System.out.println("END OF SIMULATION");
     }
