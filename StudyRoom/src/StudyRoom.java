@@ -1,5 +1,9 @@
 import java.util.concurrent.Semaphore;
 
+/**
+ * 
+ * @author Alejandro Medina & Lluis Barca
+ */
 public class StudyRoom {
 
     static final int party = 5;

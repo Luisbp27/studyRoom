@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Alejandro Medina & Lluis Barca
+ */
 public class Director implements Runnable {
     
     public enum State {
