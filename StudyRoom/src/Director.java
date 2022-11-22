@@ -1,8 +1,10 @@
 public class Director implements Runnable {
-
-    public enum States {
-        OUT, WAITING, IN
+    
+    public enum State {
+        IN, WAITING, OUT
     }
+
+    static State directorState = State.OUT;
 
     public Director() {
 
@@ -11,63 +13,71 @@ public class Director implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("");
-
             for (int i = 1; i <= 3; i++) {
-                System.out.println("    The Director starts the round " + i + "/3");
-                Thread.sleep((long) (Math.random() + 1000));
+                Thread.sleep(400);
                 
-                // If nobody is in the study room
-                // StudyRoom.roomState = States.WAITING;
-                StudyRoom.door.acquire();
+                System.out.println("  The Director starts the round " + i + "/3");  
+                
+                StudyRoom.mutex.acquire();
+                // If there is nobody in the study room                
                 if (StudyRoom.studentsCounter == 0) {
-                    StudyRoom.student.acquire();
-                    System.out.println("    The director see that's nobody is in the study room");
-                    StudyRoom.student.release();
+                    StudyRoom.mutex.release();
+                    StudyRoom.director.release();
+                
+                // If there is no party in the study room
+                } else if (StudyRoom.studentsCounter < StudyRoom.party && StudyRoom.studentsCounter > 0) {
+                        directorState = State.WAITING;
+                        System.out.println("    The director is waiting. They don't disturb the students");  
+                        
+                        StudyRoom.mutex.release();
+                        StudyRoom.director.acquire();                       
+                        
+                        StudyRoom.mutex.acquire();
+                        // If there is a party
+                        if(StudyRoom.studentsCounter >= StudyRoom.party){
+                            directorState = State.IN;
+                            System.out.println("    The director is in the study room: THE PARTY IS OVER");     
+                            StudyRoom.mutex.release();
 
-                    StudyRoom.roomState = States.OUT;
-                    Thread.sleep((long) (Math.random() + 1000));
-                }
-                StudyRoom.door.release();
+                            StudyRoom.student.acquire();    
+                            StudyRoom.director.acquire(); 
+                            StudyRoom.director.release();
 
-                // If somebody is in the room but they are studying
-                StudyRoom.door.acquire();
-                if (StudyRoom.studentsCounter < StudyRoom.party && StudyRoom.studentsCounter > 0) {
-                    StudyRoom.roomState = States.WAITING;
-                    StudyRoom.director.acquire();
-                    System.out.println("    The director is waiting. They don't disturb the students");
-                    StudyRoom.door.release();
-                    Thread.sleep((long) (Math.random() + 1000));
+                        // If there is not a party
+                        }else{
+                            StudyRoom.mutex.release();
+                            StudyRoom.director.release();
+                        }
+                        
+                // If there is a party in the room
+                } else {
+                    directorState = State.IN;
+                    System.out.println("    The director is in the study room: THE PARTY IS OVER");     
+
+                    StudyRoom.mutex.release();
+                    StudyRoom.student.acquire();    
+                    StudyRoom.director.acquire(); 
+                    
                 }
                 
+                StudyRoom.director.acquire();
+                StudyRoom.mutex.acquire();
 
-                // If there is a party in the room
-                StudyRoom.door.acquire();
-                if (StudyRoom.studentsCounter >= StudyRoom.party) {
-                    // Block then entry of students and change the director state
-                    StudyRoom.roomState = Director.States.IN;
-                    StudyRoom.director.acquire();
-                    StudyRoom.student.acquire();
+                System.out.println("    The director see that's nobody is in the study room");
+                directorState = State.OUT;
 
-                    // Go out all students of the study room
-                    int counter = StudyRoom.studentsCounter;
-                    for (int j = 0; j < counter; j++) {
-                        System.out.println(StudyRoom.studentsThread[j].getName()
-                                + " goes out the study room. Number of students now: " + StudyRoom.studentsCounter);
-                        StudyRoom.studentsThread[j].join();
-                        StudyRoom.studentsCounter--;
-                    }
+                System.out.println("    The director finished the round " + i + "/3");
+                // If is the last student, the director lets student leave the study room
+                if(StudyRoom.student.availablePermits() == 0){
+                    StudyRoom.student.release();  
+                }               
 
-                    // Release all threads
-                    StudyRoom.director.release();
-                    StudyRoom.roomState = Director.States.OUT;
-                    StudyRoom.door.release();
-                    StudyRoom.student.release();
-                }
+                StudyRoom.mutex.release();
+                Thread.sleep((long) (Math.random() + 1000));
             }
-
+            
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
         }
     }
 }

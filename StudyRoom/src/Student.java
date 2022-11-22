@@ -1,4 +1,5 @@
-public class Student implements Runnable {
+
+public class Student implements Runnable  {
 
     private String name;
 
@@ -8,50 +9,63 @@ public class Student implements Runnable {
 
     @Override
     public void run() {
-
         try {
+            Thread.sleep((long) ((Math.random()*1000) + 1000));
 
-            // Critical Region
-            StudyRoom.student.acquire();
+            StudyRoom.mutex.acquire();
+            if (Director.directorState == Director.State.IN ){
+                StudyRoom.mutex.release();
+                StudyRoom.student.acquire();
+                StudyRoom.student.release();
+                
+            }else{
+                StudyRoom.mutex.release();
+            }
+
+            StudyRoom.mutex.acquire();
+            // Critical Region to go inside the room
             StudyRoom.studentsCounter++;
             System.out.println(this.name + ": goes inside the study room. Current number of students: "
-                + StudyRoom.studentsCounter);
-
-            // Check if the students is studying or party
+                    + StudyRoom.studentsCounter);
+            // If students are studying or making a party
             if (StudyRoom.studentsCounter < StudyRoom.party) {
                 System.out.println(this.name + " is studying");
-                Thread.sleep((long) (Math.random() + 1000));
-
             } else {
-                System.out.println(this.name + " PARTY!!!!");
-                Thread.sleep((long) (Math.random() + 1000));
+                System.out.println(this.name + " PARTY!!!");
 
-                // When there is a party and the director is waiting
-                if (StudyRoom.roomState == Director.States.WAITING) {
-                    System.out.println("    The director is in the study room: THE PARTY IS OVER");
-                    StudyRoom.roomState = Director.States.IN;
-                    StudyRoom.student.acquire();
-                    StudyRoom.director.release();
-                } else {
-                    StudyRoom.student.release();
+                if (Director.directorState == Director.State.WAITING) {
+                    System.out.println(this.name + " WARNING, THE DIRECTOR IS HERE!!!");
                 }
             }
-            StudyRoom.student.release();
+                            
+            Thread.sleep((long) ((Math.random()*100) + 1000));
 
-            // If the study room is empty, the director go in
-            StudyRoom.door.acquire();
+            StudyRoom.mutex.release();
+            
+            Thread.sleep((long) ((Math.random()*100) + 1000));
+
+            // Critical region to go out the room
+            StudyRoom.mutex.acquire();
+            StudyRoom.studentsCounter--;
+            System.out.println(this.name + ": goes outside the study room. Current number of students: "
+                    + StudyRoom.studentsCounter);
+            // If is the last student and the director is IN or WAITING
             if (StudyRoom.studentsCounter == 0) {
-                System.out.println("    The director checks there is nobody in the student room");
+                if (Director.directorState == Director.State.IN) {
+                    System.out.println(this.name + ": Good bye director");
+                    
+                } else if (Director.directorState == Director.State.WAITING) {
+                    System.out.println(this.name + ": Good bye director, I am the last student");
+                    
+                }
+                
                 StudyRoom.director.release();
             }
-            StudyRoom.door.release();
+
+            StudyRoom.mutex.release();
 
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("ERROR: " + e.getMessage());
         }
-    }
-
-    public String getName() {
-        return this.name;
     }
 }

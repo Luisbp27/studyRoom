@@ -6,14 +6,12 @@ public class StudyRoom {
     static final int maxStudents = 15;
     static int studentsCounter = 0;
 
-    static Director.States roomState = Director.States.OUT;
-
-    static Semaphore director = new Semaphore(0);
-    static Semaphore student = new Semaphore(1);
-    static Semaphore door = new Semaphore(1);
-
     static Thread directorThread = new Thread(new Director());
     static Thread studentsThread[] = new Thread[maxStudents];
+
+    static Semaphore director = new Semaphore(1);
+    static Semaphore student = new Semaphore(1);
+    static Semaphore mutex = new Semaphore(1);
 
     static String names[] = {
             "Moises",
@@ -34,6 +32,7 @@ public class StudyRoom {
 
     public static void main(String args[]) throws InterruptedException {
         System.out.println("Total number of students: " + party);
+        System.out.println("Maximum number of students: " + studentsCounter);
 
         directorThread.start();
         for (int i = 0; i < studentsThread.length; i++) {
@@ -45,6 +44,7 @@ public class StudyRoom {
         for (int i = 0; i < studentsThread.length; i++) {
             studentsThread[i].join();
         }
-    }
 
+        System.out.println("END OF SIMULATION");
+    }
 }
