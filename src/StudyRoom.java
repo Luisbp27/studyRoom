@@ -13,6 +13,7 @@ public class StudyRoom {
     static Semaphore student = new Semaphore(1);
     // Blocks entrance of students when evaluate students counter on Director class
     static Semaphore mutex = new Semaphore(1);
+    //static Semaphore dorr = new Semaphore(0);
 
     static String names[] = {
             "Moises",
@@ -35,17 +36,15 @@ public class StudyRoom {
         System.out.println("Total number of students: " + party);
 
         directorThread.start();
-        Thread.sleep(100);
+        //Thread.sleep(100);
         for (int i = 0; i < studentsThread.length; i++) {
             studentsThread[i] = new Thread(new Student(names[i]));
             studentsThread[i].start();
         }
-        
         directorThread.join();
         for (int i = 0; i < studentsThread.length; i++) {
             studentsThread[i].join();
         }
-
         System.out.println("Semaforos-> director: " + director.availablePermits() + ", student: " + student.availablePermits() + ", mutex: " + mutex.availablePermits());
         System.out.println("END OF SIMULATION");
     }
