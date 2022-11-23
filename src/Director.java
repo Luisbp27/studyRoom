@@ -45,7 +45,7 @@ public class Director implements Runnable {
 
                             StudyRoom.student.acquire();    
                             StudyRoom.director.acquire(); 
-                            StudyRoom.director.release();
+                            
 
                         // If there is not a party
                         }else{
@@ -71,12 +71,16 @@ public class Director implements Runnable {
                 directorState = State.OUT;
 
                 System.out.println("    The director finished the round " + i + "/3");
+                StudyRoom.mutex.release();
                 // If is the last student, the director lets student leave the study room
                 if(StudyRoom.student.availablePermits() == 0){
                     StudyRoom.student.release();  
                 }               
 
-                StudyRoom.mutex.release();
+                if(StudyRoom.director.availablePermits()==0){
+                    StudyRoom.director.release();  
+                }
+                
                 Thread.sleep((long) (Math.random() + 1000));
             }
             

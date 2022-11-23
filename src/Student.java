@@ -41,11 +41,11 @@ public class Student implements Runnable  {
                 }
             }
                             
-            Thread.sleep((long) ((Math.random()*100) + 1000));
+            
 
             StudyRoom.mutex.release();
             
-            Thread.sleep((long) ((Math.random()*100) + 1000));
+            Thread.sleep((long) ((Math.random()*1000) + 2000));
 
             // Critical region to go out the room
             StudyRoom.mutex.acquire();
