@@ -40,31 +40,27 @@ public class Student implements Runnable  {
                     System.out.println(this.name + " WARNING, THE DIRECTOR IS HERE!!!");
                 }
             }
-                            
-            
-
             StudyRoom.mutex.release();
             
-            Thread.sleep((long) ((Math.random()*1000) + 2000));
+            Thread.sleep((long) ((Math.random()*1000) + 1000));
 
             // Critical region to go out the room
             StudyRoom.mutex.acquire();
             StudyRoom.studentsCounter--;
             System.out.println(this.name + ": goes outside the study room. Current number of students: "
                     + StudyRoom.studentsCounter);
+                    
             // If is the last student and the director is IN or WAITING
             if (StudyRoom.studentsCounter == 0) {
                 if (Director.directorState == Director.State.IN) {
-                    System.out.println(this.name + ": Good bye director");
+                    System.out.println(this.name + ": Good bye director, you are on your own");
                     
                 } else if (Director.directorState == Director.State.WAITING) {
-                    System.out.println(this.name + ": Good bye director, I am the last student");
-                    
+                    System.out.println(this.name + ": Good bye director, you can come in if you want, there is no one here"); 
                 }
                 
                 StudyRoom.director.release();
             }
-
             StudyRoom.mutex.release();
 
         } catch (Exception e) {

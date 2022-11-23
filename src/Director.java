@@ -9,16 +9,17 @@ public class Director implements Runnable {
     }
 
     static State directorState = State.OUT;
+    int sleepingTime;
 
-    public Director() {
-
+    public Director(int sleepingTime) {
+        this.sleepingTime = sleepingTime;
     }
 
     @Override
     public void run() {
         try {
             for (int i = 1; i <= 3; i++) {
-                Thread.sleep(400);
+                Thread.sleep(this.sleepingTime);
                 
                 System.out.println("  The Director starts the round " + i + "/3");  
                 
@@ -45,7 +46,6 @@ public class Director implements Runnable {
 
                             StudyRoom.student.acquire();    
                             StudyRoom.director.acquire(); 
-                            
 
                         // If there is not a party
                         }else{
@@ -60,10 +60,8 @@ public class Director implements Runnable {
 
                     StudyRoom.mutex.release();
                     StudyRoom.student.acquire();    
-                    StudyRoom.director.acquire(); 
-                    
+                    StudyRoom.director.acquire();        
                 }
-                
                 StudyRoom.director.acquire();
                 StudyRoom.mutex.acquire();
 
@@ -72,12 +70,11 @@ public class Director implements Runnable {
 
                 System.out.println("    The director finished the round " + i + "/3");
                 StudyRoom.mutex.release();
+
                 // If is the last student, the director lets student leave the study room
                 if(StudyRoom.student.availablePermits() == 0){
                     StudyRoom.student.release();  
-                }               
-
-                if(StudyRoom.director.availablePermits()==0){
+                } else if(StudyRoom.director.availablePermits() == 0){
                     StudyRoom.director.release();  
                 }
                 
