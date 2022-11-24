@@ -46,7 +46,7 @@ public class StudyRoom {
         }
 
         System.out.println("Maximum number of students: " + maxStudents);
-        System.out.println("Total number of students: " + party);
+        System.out.println("Total number of students: " + party + "\n");
 
         directorThread.start();
         for (int i = 0; i < studentsThread.length; i++) {

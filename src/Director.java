@@ -18,7 +18,7 @@ public class Director implements Runnable {
     public void run() {
         try {
             for (int i = 1; i <= 3; i++) {
-                Thread.sleep(400);
+                Thread.sleep(StudyRoom.directorSleep);
                 System.out.println("  The Director starts the round " + i + "/3");
 
                 StudyRoom.mutex.acquire();
@@ -31,7 +31,6 @@ public class Director implements Runnable {
                 } else if (StudyRoom.studentsCounter < StudyRoom.party && StudyRoom.studentsCounter > 0) {
                     directorState = State.WAITING;
                     System.out.println("    The director is waiting. They don't disturb the students");
-
                     StudyRoom.mutex.release();
                     StudyRoom.director.acquire();
 
@@ -68,7 +67,7 @@ public class Director implements Runnable {
                 directorState = State.OUT;
                 StudyRoom.mutex.release();
 
-                System.out.println("    The director finished the round " + i + "/3");
+                System.out.println("  The director finished the round " + i + "/3");
                 Thread.sleep((long) (Math.random() + 1000));
             }
 
