@@ -3,6 +3,7 @@ import java.util.Scanner;
 
 /**
  * 
+ * Link video: https://drive.google.com/file/d/1jLY6xyLkGFp6LfLpfE_sf1BIUsVccAOK/view?usp=sharing
  * @author Alejandro Medina & Lluis Barca
  */
 public class StudyRoom {
