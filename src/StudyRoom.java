@@ -8,8 +8,8 @@ import java.util.Scanner;
 public class StudyRoom {
 
     static int studentsCounter = 0;
-    static final int maxStudents = 10;
-    static final int party = 4;
+    static final int maxStudents = 5;
+    static final int party = 15;
     static int directorSleep;
 
     static Thread directorThread = new Thread(new Director());

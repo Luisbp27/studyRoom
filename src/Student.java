@@ -17,12 +17,12 @@ public class Student implements Runnable  {
 
             StudyRoom.mutex.acquire();
             // Check if the student can enter to the study room
-            if (Director.directorState == Director.State.IN ){
+            if (Director.directorState == Director.State.IN ) {
                 StudyRoom.mutex.release();
                 StudyRoom.student.acquire();
                 StudyRoom.student.release();
                 
-            }else{
+            } else {
                 StudyRoom.mutex.release();
             }
 
