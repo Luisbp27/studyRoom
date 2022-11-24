@@ -10,11 +10,12 @@ public class StudyRoom {
     static int studentsCounter = 0;
     static final int maxStudents = 10;
     static final int party = 4;
+    static int directorSleep;
 
-    static Thread directorThread;
+    static Thread directorThread = new Thread(new Director());
     static Thread studentsThread[] = new Thread[maxStudents]; 
 
-    static Semaphore director = new Semaphore(1);
+    static Semaphore director = new Semaphore(0);
     static Semaphore student = new Semaphore(1);
     static Semaphore mutex = new Semaphore(1);
 
@@ -39,9 +40,9 @@ public class StudyRoom {
 
         System.out.println("Introduce the director timeout for each round (in miliseconds): ");
         try (Scanner input = new Scanner(System.in)) {
-            directorThread = new Thread(new Director(Integer.parseInt(input.nextLine())));
-        } catch (Error e) {
-            System.out.println("ERROR: " + e.getMessage());
+            directorSleep = Integer.parseInt(input.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Input error: " + e.getMessage());
         }
 
         System.out.println("Maximum number of students: " + maxStudents);

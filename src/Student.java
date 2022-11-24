@@ -16,6 +16,7 @@ public class Student implements Runnable  {
             Thread.sleep((long) ((Math.random()*1000) + 1000));
 
             StudyRoom.mutex.acquire();
+            // Check if the student can enter to the study room
             if (Director.directorState == Director.State.IN ){
                 StudyRoom.mutex.release();
                 StudyRoom.student.acquire();
@@ -30,6 +31,7 @@ public class Student implements Runnable  {
             StudyRoom.studentsCounter++;
             System.out.println(this.name + ": goes inside the study room. Current number of students: "
                     + StudyRoom.studentsCounter);
+
             // If students are studying or making a party
             if (StudyRoom.studentsCounter < StudyRoom.party) {
                 System.out.println(this.name + " is studying");
@@ -41,22 +43,23 @@ public class Student implements Runnable  {
                 }
             }
             StudyRoom.mutex.release();
-            
-            Thread.sleep((long) ((Math.random()*1000) + 1000));
+  
+            Thread.sleep((long) ((Math.random()*1000) + 2000));
 
             // Critical region to go out the room
             StudyRoom.mutex.acquire();
             StudyRoom.studentsCounter--;
             System.out.println(this.name + ": goes outside the study room. Current number of students: "
                     + StudyRoom.studentsCounter);
-                    
+
             // If is the last student and the director is IN or WAITING
             if (StudyRoom.studentsCounter == 0) {
                 if (Director.directorState == Director.State.IN) {
-                    System.out.println(this.name + ": Good bye director, you are on your own");
-                    
-                } else if (Director.directorState == Director.State.WAITING) {
-                    System.out.println(this.name + ": Good bye director, you can come in if you want, there is no one here"); 
+                    System.out.println(this.name + ": Good bye director");
+                } 
+                
+                if (Director.directorState == Director.State.WAITING) {
+                    System.out.println(this.name + ": Good bye director, I am the last student");
                 }
                 
                 StudyRoom.director.release();
